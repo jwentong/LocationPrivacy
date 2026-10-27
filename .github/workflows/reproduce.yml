@@ -1,0 +1,22 @@
+name: Reproduce paper results
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s Experiments -p "test_*.py"
+      - run: python reproduce.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reproduced-results
+          path: Experiments/results/basic_v1/

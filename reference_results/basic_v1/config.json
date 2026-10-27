@@ -1,0 +1,105 @@
+{
+  "version": "basic_v1",
+  "seed": 20261029,
+  "alpha": 0.1,
+  "r0_m": 10,
+  "eta_grid": [
+    0.1,
+    0.12589254117941673,
+    0.15848931924611134,
+    0.19952623149688797,
+    0.251188643150958,
+    0.31622776601683794,
+    0.3981071705534973,
+    0.5011872336272724,
+    0.6309573444801934,
+    0.7943282347242815,
+    1.0,
+    1.2589254117941675,
+    1.584893192461114,
+    1.9952623149688797,
+    2.511886431509581,
+    3.1622776601683795,
+    3.981071705534973,
+    5.011872336272725,
+    6.309573444801933,
+    7.943282347242818,
+    10.0
+  ],
+  "delta_selection": 0.025,
+  "delta_confirmation": 0.025,
+  "Ns": 20000,
+  "Nc": 100000,
+  "repeats": 500,
+  "reliability_N": [
+    200,
+    500,
+    2000,
+    5000,
+    20000
+  ],
+  "D_values": [
+    0.03,
+    0.05,
+    0.1,
+    0.2
+  ],
+  "eta_caps": [
+    0.3,
+    1.0,
+    3.0,
+    10.0
+  ],
+  "mechanism_N": 100000,
+  "source_slots": 5000000,
+  "source_batch": 10000,
+  "reference_snr_db": 10,
+  "spectral_efficiency": 1,
+  "geometric_N": 12000,
+  "geometric_kappa": 10,
+  "geometric_alpha": 0.1,
+  "geometry_reference_distance": 150,
+  "geometric_pathloss_exponent": 2,
+  "geometry_single_element_snr_db": -5,
+  "geometry_equal_aligned_snr_db": 13.061799739838872,
+  "geometry_arrays": [
+    1,
+    4,
+    8,
+    16
+  ],
+  "calibration_train_power": 721.1370849609375,
+  "snr_scale": 0.013866988965824271,
+  "scenario_count": 3,
+  "scenario_counts": [
+    7,
+    17,
+    78
+  ],
+  "candidate_xyz": [
+    [
+      -5,
+      -5,
+      25
+    ],
+    [
+      5,
+      -15,
+      25
+    ],
+    [
+      15,
+      -25,
+      25
+    ]
+  ],
+  "map_sha256": "998f0c4ef8a48a9045e3fcdebb1bafa99757d1dfbfa5ac612f6187ea09191aa2",
+  "elapsed_seconds": 88.80531299998984,
+  "scope": "Conditional empirical CSI bootstrap; separate ideal Rician array controls; no calibrated RF link budget.",
+  "runtime": {
+    "python": "3.13.11 | packaged by Anaconda, Inc. | (main, Dec 10 2025, 21:21:58) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.4.1"
+  },
+  "script_sha256": "7d026b38956d4558c8587d892db3f746618f3021d9f9cf29dc3ea3ead31e9803"
+}

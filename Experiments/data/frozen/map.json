@@ -1,0 +1,12 @@
+{
+  "input_sha256": "2abfd726040018cc9cedad4eed9d1b9655dbfb5468bc41ce5411737d0b197af3",
+  "seed": 20261027,
+  "cell_m": 10,
+  "guard_m": 2,
+  "min_samples": 5,
+  "train_fraction": 0.7,
+  "map_cells": 7,
+  "test_samples": 102,
+  "method": "local principal covariance eigenvector; nearest-cell lookup",
+  "map_fit_uses_test_csi": false
+}

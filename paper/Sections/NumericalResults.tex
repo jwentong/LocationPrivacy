@@ -1,0 +1,46 @@
+\section{Numerical Results}
+\label{sec:results}
+\subsection{Experimental Setup}
+Table~\ref{tab:parameters} gives the settings. One 50-s recording from the MaMIMO-UAV dataset~\cite{colpaert2023dataset} yields 500 location--CSI pairs at 100-ms intervals on one subcarrier. Coverage is $34\times43$~m horizontally, at takeoff-relative heights 25--27.5~m. A 70/30 split of 10-m cells (seed 20261027), with a 2-m guard, retains 287 training and 102 test snapshots and discards 111. Seven covariance eigenvectors form the frozen nearest-cell beam map. Empirical SNR is $10|\mathbf w^{\mathsf H}\mathbf h|^2/\operatorname{median}_{i\in\mathcal T}\|\mathbf h_i\|_2^2$, where $\mathcal T$ contains training snapshots. This configured SNR scale is uncalibrated. Ages and intervals are normalized by $T$, unrelated to measurement spacing.
+
+\begin{table}[t]
+\caption{Simulation and Empirical-Channel Settings}
+\label{tab:parameters}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{0.42\columnwidth}p{0.50\columnwidth}}
+\hline
+Parameter & Value \\
+\hline
+Privacy distance / budget grid & $r_0=10$~m; 21 log-spaced $\eta\in[0.1,10]$ \\
+Default task / threshold & $\alpha=0.1$; $\gamma_{\rm th}=1$; AoII in units of $T$ \\
+Empirical receiver / map cells & 64 channels at 2.610~GHz; 10-m cells; 2-m guard \\
+Empirical scenarios / weights & Three cell centers; uniform prior and weights \\
+Configured empirical SNR scale & 10~dB at median training channel energy \\
+Mechanism Monte Carlo samples & $10^5$ per scenario and budget \\
+Selection samples (main / sweep) & $2\times10^4$ / $\{200,500,2000,5000,20000\}$ \\
+Confirmation samples & $N_c=10^5$ \\
+Confidence / macro repetitions & $\delta_s=\delta_c=0.025$; 500 repetitions \\
+Geometric array control & $M=1,16,64,256$; $d_x=d_y=\lambda_c/2$ \\
+Geometric channel / scenarios & $\kappa=10$, $\nu=2$; 75 hovering locations \\
+Geometric report samples & $1.2\times10^4$ per location and budget \\
+\hline
+\end{tabular}
+\end{table}
+
+Three occupied held-out cell centers define the public scenarios before reporting, with 7, 17, and 78 CSI snapshots. Snapshots are independently resampled within cells; scenario weights are equal. The privacy guarantee applies to representative centers, not original Global Positioning System (GPS) coordinates. Collinearity and equal priors permit exact MAP integration. This data-derived grid does not test general three-dimensional map performance. Bounds cover simulation randomness, not measurement representativeness, GPS error, or map mismatch.
+
+\subsection{Privacy Mechanism and AoII Validation}
+Figure~\ref{fig:mechanism} traces report privacy through the frozen beam map. Increasing $\eta$ from 0.1 to 10 reduces mean outage from 0.4321 to 0.0571 and normalized AoII from 0.1131 to 0.0072. At $\eta=1$, MAP achieves normalized AoII 0.0446 versus 0.0530 for direct-report map lookup, an estimated 15.8\% reduction. Simultaneous 95\% Monte Carlo bounds for the direct baseline give a relative-reduction interval of [12.7\%, 18.7\%]. MAP need not minimize outage: at $\eta=0.1$, direct lookup has lower mean outage but higher mean AoII. This reflects heterogeneous outages and nonlinear scenario-wise AoII. For 20 controlled source--link settings, $5\times10^6$ simulated slots per setting give maximum relative deviation 1.00\%; nine additional empirical-marginal settings give 2.14\%. These tests assess the i.i.d. mapping, not measured-trajectory AoII.
+
+\subsection{Array Size and Directional Sensitivity}
+Figure~\ref{fig:arrays} uses~\eqref{eq:channel} to isolate aperture effects without assuming the measured array's physical ordering. Candidate coordinates are $x,y\in\{-100,-50,0,50,100\}$~m and $z\in\{80,120,160\}$~m; conditional Rician outage is integrated analytically. At fixed power and $\eta=0.1$, AoII rises from 0.823 for $M=16$ to 2.373 for $M=256$, despite the larger aligned gain. At equal reference aligned-SNR scale, the corresponding values are 0.326 and 3.142. Larger arrays therefore do not guarantee better privacy-constrained performance. The $M=1$ curve is budget-independent, as expected. An additional analytical Rayleigh control is direction-independent (not plotted).
+
+\subsection{Budget Selection and Reliability}
+For (P1), LAPIS selects the largest feasible grid point for all four tested caps $\eta_{\max}\in\{0.3,1,3,10\}$, matching the exact grid reference. These are boundary optima. For (P2) with $D_{\max}/T=0.05$, it selects $\eta=1$ and independently confirms normalized AoII in $[0.0431,0.0459]$. At the tighter requirement 0.03, it selects $\eta=1.995$, whereas the smallest feasible budget under the exact conditional reference is 1.585: finite-sample certification costs additional disclosure.
+
+Figure~\ref{fig:selection} quantifies this tradeoff for $D_{\max}/T=0.05$. With $N_s=200$, point-estimate selection violates the exact empirical-model AoII requirement in 143 of 500 runs (28.6\%), versus zero observed violations for LAPIS. The latter is not a zero-risk claim: the two-sided 95\% binomial upper endpoint is 0.735\%. LAPIS selects mean budget 2.89 versus 0.97 for the comparator at this sample size; both approach 1 as samples increase. All LAPIS candidates in this reliability experiment pass independent confirmation. Reliability and confirmation use independent Bernoulli counts from the exact empirical model; the selection rule does not receive these probabilities. Generalization requires broader measurements.
+
+\section{Conclusion}
+Location privacy can degrade receive-beam decisions and increase persistent task-information errors. The empirical and geometric experiments support this mechanism while showing that array size alone does not remove its cost. LAPIS translates privacy or AoII requirements into fixed reporting budgets with explicit simulation uncertainty. Reliable selection in this conditional model requires additional disclosure at small sample sizes.

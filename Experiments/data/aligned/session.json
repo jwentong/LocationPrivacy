@@ -1,0 +1,21 @@
+{
+  "channel": "Experiments\\data\\raw\\20230316_154153_n64_l1_s50000_sr2_f2.610G_g30.0.bin",
+  "channel_sha256": "b474340b09a52e50d23cafdc23afa747f52eb6bcad6adfdc8614a6f6d81062d0",
+  "trajectory": [
+    "Experiments\\data\\raw\\Mar-16th-2023-04-40PM-Flight-Airdata.csv"
+  ],
+  "trajectory_sha256": [
+    "b94c81ef171f3e194e7bfb882baa7f39b7ce192ef55edc0593c909c5697e01b3"
+  ],
+  "subcarrier": 50,
+  "stride": 100,
+  "clock_offset_seconds": 0,
+  "accepted": 500,
+  "rejected": 0,
+  "height_reference": "takeoff-relative; not absolute BS-relative",
+  "xy_reference": [
+    50.86208865861035,
+    4.685513023420431
+  ],
+  "note": "Array order is provider order, not inferred physical UPA order."
+}

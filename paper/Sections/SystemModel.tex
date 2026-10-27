@@ -1,0 +1,113 @@
+\section{System Model}
+\label{sec:system}
+\subsection{Network and Update Protocol}
+In Fig.~\ref{fig:system}, a single-antenna UAV communicates with a BS at $\mathbf b\in\mathbb R^3$ using an $M_x\times M_y$ uniform planar array (UPA), $M=M_xM_y$. The UAV hovers at $\mathbf x\in\mathcal X\subset\mathbb R^3\setminus\{\mathbf b\}$ per session; locations define separate scenarios. Power $P$, array, and packet requirements are fixed across budgets.
+
+Each slot lasts $T$. At its start, the UAV generates state $S_t$ and a noisy location report. A reliable control path delivers the report before beam configuration and state-packet transmission. The state remains constant within the slot; reception is assessed at its end. Failed packets are discarded. Fixed control overhead leaves data duration $\tau_d$, identically across budgets.
+
+Before beam selection, the controller observes reports, the public prior, and a frozen beam map, but no independent precise location or full instantaneous array CSI. Privacy is guaranteed only for the report interface, not for RF localization observations. The task source is independent of location and channel randomness and carries no true location.
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{\input{Figs/system_model.tex}}
+\caption{Location-report privacy and its communication cost in a single-UAV uplink. The noisy report determines the inferred location and receive beam; the task packet propagates over the channel at the true location. The orange marker is an estimate, not another UAV. Location and task packets have distinct roles.}
+\label{fig:system}
+\end{figure*}
+
+\subsection{Private Location Reporting and Inference}
+For a fixed budget $\epsilon>0$, the UAV releases $\mathbf Z_t=\mathbf x+\mathbf N_t$, independently each slot. Following geo-indistinguishability~\cite{andres2013geo,min2022three}, we use the three-dimensional isotropic Laplace density
+\begin{equation}
+ f_\epsilon(\mathbf z\mid\mathbf x)
+ =\frac{\epsilon^3}{8\pi}\exp(-\epsilon\|\mathbf z-\mathbf x\|_2).
+ \label{eq:laplace}
+\end{equation}
+The triangle inequality gives
+\begin{equation}
+ f_\epsilon(\mathbf z\mid\mathbf x)
+ \le e^{\epsilon\|\mathbf x-\mathbf x'\|_2}
+ f_\epsilon(\mathbf z\mid\mathbf x').
+ \label{eq:gi}
+\end{equation}
+Thus $\eta=\epsilon r_0$ is the dimensionless single-report budget within a protection distance $r_0$; smaller $\eta$ provides stronger protection. Here $\epsilon$ has units $\mathrm m^{-1}$. Reports are not clipped to the candidate region. The noise radius satisfies $\|\mathbf N_t\|_2\sim\mathrm{Gamma}(3,1/\epsilon)$ in shape--scale notation, with mean $3/\epsilon$. 
+
+Let $\mathcal X=\{\mathbf x_j\}_{j=1}^{N_{\mathrm x}}$, with $N_{\mathrm x}=|\mathcal X|$, be a public candidate set with fixed prior probabilities $\pi_j>0$, $\sum_j\pi_j=1$. A report $\mathbf z_t$ yields posterior
+\begin{equation}
+ \rho_t(j)=
+ \frac{\pi_j e^{-\epsilon\|\mathbf z_t-\mathbf x_j\|_2}}
+ {\sum_{k=1}^{N_{\mathrm x}}\pi_k e^{-\epsilon\|\mathbf z_t-\mathbf x_k\|_2}},
+ \quad
+ \widehat{\mathbf x}_t=\mathbf x_{\arg\max_j\rho_t(j)}.
+ \label{eq:map}
+\end{equation}
+Ties use a fixed rule. The prior and candidate set are public and fixed before reporting. Current-report MAP is a prescribed receiver, not an optimal attacker or AoII-optimal beam rule; temporal filtering is excluded. Post-processing preserves~\eqref{eq:gi}. For $K$ retained reports, the likelihood ratio is bounded by $e^{K\epsilon\|\mathbf x-\mathbf x'\|_2}$, so the per-report budget does not guarantee session-level privacy.
+
+\subsection{Location-Aided Receive Beamforming}
+We adapt location-to-beam mapping~\cite{lemagoarou2022location} to uplink combining. For wavelength $\lambda_c$ and array-relative element locations $\mathbf r_m$, the far-field narrowband steering vector for $\mathbf v\ne\mathbf b$ is
+\begin{equation}
+ \mathbf u(\mathbf v)=\frac{\mathbf v-\mathbf b}{\|\mathbf v-\mathbf b\|_2},
+ \qquad
+ [\mathbf a(\mathbf v)]_m
+ =e^{\mathrm j(2\pi/\lambda_c)\mathbf r_m^{\mathsf T}\mathbf u(\mathbf v)}.
+ \label{eq:array}
+\end{equation}
+For a UPA, $\mathbf r_{m_x,m_y}=(m_xd_x,m_yd_y,0)^{\mathsf T}$, where $0\le m_x<M_x$ and $0\le m_y<M_y$, and all coordinates share the array frame. Hence $\|\mathbf a(\mathbf v)\|_2^2=M$. A Rician baseline is
+\begin{equation}
+ \mathbf h_t(\mathbf x)=\sqrt{\beta(\mathbf x)}
+ \left(\sqrt{\frac{\kappa}{\kappa+1}}\mathbf a(\mathbf x)
+ +\sqrt{\frac{1}{\kappa+1}}\mathbf g_t\right),
+ \label{eq:channel}
+\end{equation}
+where $\mathbf g_t\sim\mathcal{CN}(\mathbf0,\mathbf I_M)$ is independent and identically distributed (i.i.d.) across slots and independent of report noise, $\kappa$ is the linear Rician factor, and $\beta(\mathbf x)=\beta_0(\|\mathbf x-\mathbf b\|_2/d_0)^{-\nu}$ is the single-element large-scale power gain, with $\beta_0,d_0>0$ and $\nu>0$. The line-of-sight (LOS) limit is obtained as $\kappa\to\infty$.
+
+Given a frozen map output $\boldsymbol\psi(\mathbf v)\in\mathbb C^M\setminus\{\mathbf0\}$, the receive beam is
+\begin{equation}
+ \mathbf w_t=\mathcal W(\widehat{\mathbf x}_t)
+ =\frac{\boldsymbol\psi(\widehat{\mathbf x}_t)}
+ {\|\boldsymbol\psi(\widehat{\mathbf x}_t)\|_2},
+ \qquad \|\mathbf w_t\|_2=1.
+ \label{eq:beam}
+\end{equation}
+The geometric model uses $\boldsymbol\psi(\mathbf v)=\mathbf a(\mathbf v)$; the empirical map uses a covariance eigenvector (Section~\ref{sec:results}). Channel predictions are also compatible, but scalar power alone cannot specify~\eqref{eq:beam}. A fixed unit beam handles zero outputs. The prescribed digital beam map has no constant-modulus constraint and is not jointly optimized with the budget.
+
+For unit-energy data symbol $s_t$ and receiver noise $\mathbf n_t^{\rm RF}\sim\mathcal{CN}(\mathbf0,\sigma^2\mathbf I_M)$, independent of other randomness, the received signal and combined signal-to-noise ratio (SNR) are
+\begin{align}
+ \mathbf y_t&=\sqrt P\mathbf h_t(\mathbf x)s_t+\mathbf n_t^{\rm RF},\nonumber\\
+ \Gamma_t&=\frac{P|\mathbf w_t^{\mathsf H}\mathbf h_t(\mathbf x)|^2}{\sigma^2}.
+ \label{eq:snr}
+\end{align}
+Unit-norm combining leaves noise power $\sigma^2$. In pure LOS with the geometry-based rule, the mismatch factor and resulting SNR are
+\begin{align}
+ B_t&=\frac{|\mathbf a(\widehat{\mathbf x}_t)^{\mathsf H}
+                   \mathbf a(\mathbf x)|^2}{M^2}\in[0,1],\nonumber\\
+ \Gamma_t&=\Gamma_{\rm al}B_t,
+ \qquad \Gamma_{\rm al}=P\beta(\mathbf x)M/\sigma^2.
+ \label{eq:mismatch}
+\end{align}
+
+
+\subsection{Outage and Task-Information Correctness}
+With fixed packet length $L$ bits and bandwidth $W$, we use the ideal coding threshold $\gamma_{\rm th}=2^{L/(W\tau_d)}-1>0$. Define
+\begin{equation}
+ Y_t=\mathbf1\{\Gamma_t\ge\gamma_{\rm th}\},\qquad
+ p_\epsilon(\mathbf x)=\Pr(Y_t=1\mid\mathbf x,\epsilon),
+ \label{eq:success}
+\end{equation}
+and $q_\epsilon(\mathbf x)=1-p_\epsilon(\mathbf x)$. Outcomes are i.i.d. conditional on a session location, averaging over report noise and fading. In pure LOS, $p_\epsilon(\mathbf x)=\Pr\{B_t\ge\gamma_{\rm th}/\Gamma_{\rm al}\}$. At $\kappa=0$, isotropic scattering makes an independent unit-norm projection direction-invariant, eliminating this directional privacy cost.
+
+Following binary-source AoII models~\cite{maatouk2020aoii,chen2021imperfect}, let $S_t\in\{0,1\}$ be a symmetric Markov chain with $\Pr(S_t=1-s\mid S_{t-1}=s)=\alpha$ for $s\in\{0,1\}$ and $0<\alpha\le1/2$. Successful packets are decoded correctly; only threshold outage is modeled. At slot end,
+\begin{equation}
+ \widehat S_t=\begin{cases}
+ S_t,&Y_t=1,\\
+ \widehat S_{t-1},&Y_t=0.
+ \end{cases}
+ \label{eq:estimate}
+\end{equation}
+The linear AoII is $\Delta_t^{\rm II}=TA_t$, where
+\begin{equation}
+ A_t=\begin{cases}
+ 0,&S_t=\widehat S_t,\\
+ A_{t-1}+1,&S_t\ne\widehat S_t.
+ \end{cases}
+ \label{eq:aoii}
+\end{equation}
+Source reversal can restore correctness without reception, distinguishing this slot-end AoII from packet staleness.

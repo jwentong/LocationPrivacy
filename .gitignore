@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+Experiments/data/raw/
+Experiments/results/
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk

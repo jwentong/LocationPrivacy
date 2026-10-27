@@ -1,0 +1,82 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+%Template version as of 6/27/2024
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc,positioning,shapes.geometric}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{\fontsize{22}{26}\selectfont
+The Price of Location Privacy: Age of Incorrect\\
+Information in Location-Aided UAV Communications}
+
+% Draft placeholder; replace with the actual author list before submission.
+\author{\IEEEauthorblockN{Author information to be added}}
+
+\maketitle
+
+\begin{abstract}
+Location information increasingly supports wireless resource allocation through location-aided channel prediction and beam selection. Protecting this information can affect transmission reliability and the delivery of correct task updates. We consider a single-antenna unmanned aerial vehicle (UAV) communicating with a multi-antenna base station. The UAV releases a three-dimensional Laplace-perturbed location, and the base station applies maximum a posteriori (MAP) inference before selecting a receive beam. For a prescribed beam map and symmetric binary task source, we relate privacy-dependent outage to average age of incorrect information (AoII). Location-Aware Privacy--Information Selection (LAPIS) selects a fixed reporting budget using simultaneous confidence bounds and independent confirmation. In a conditional empirical model constructed from measured channel state information (CSI), MAP lookup yields an estimated 15.8\% lower AoII than direct-report lookup at one tested budget. With 200 selection samples per scenario and budget, point-estimate selection violates the AoII constraint in 28.6\% of 500 trials, whereas LAPIS has no observed violations and selects larger disclosure budgets. Separate geometric controls show that larger arrays can increase sensitivity to location uncertainty. These results quantify a privacy--reliability tradeoff under explicit model assumptions. Code and reproducibility materials: \url{https://github.com/jwentong/Location-Privacy-Based-Resource-Allocation}.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Location privacy, geo-indistinguishability, location-aided beamforming, age of incorrect information, UAV communications.
+\end{IEEEkeywords}
+
+\section{Introduction}
+\label{sec:introduction}
+Spatial intelligence is creating demand for networks that understand where devices operate and how their surroundings affect communication~\cite{wang2026spatial}. This is particularly relevant to the low-altitude economy, where unmanned aerial vehicle (UAV) applications require reliable links for sensing, inspection, and logistics in three-dimensional environments~\cite{jiang2023lae}. Location consequently becomes more than a navigation coordinate: it links a terminal to environmental knowledge and can guide wireless resource allocation.
+
+Existing research provides several enabling components. Location-based beamforming learns resource decisions from spatial information, including in non-line-of-sight environments~\cite{lemagoarou2022location}. Neural radio-frequency radiance fields (NeRF$^2$) model radio propagation through a continuous field conditioned on transmitter location~\cite{zhao2023nerf2}. Wireless radiation field reconstruction with Gaussian splatting (WRF-GS) reconstructs spatial spectra using three-dimensional Gaussian splatting~\cite{wen2025wrfgs}, while WRF-GS+ improves field representation and prediction~\cite{wen2026wrfgsplus}. These advances support reusable environmental models and can reduce repeated channel acquisition. Their resource decisions nevertheless depend on the quality of the reported location.
+
+Such uncertainty arises naturally from privacy protection. Accurate location reports expose a device's whereabouts and activities. Geo-indistinguishability protects reports through distance-based differential privacy~\cite{andres2013geo}, including three-dimensional mechanisms~\cite{min2022three}. Related work protects against physical-layer localization using transmit beamforming~\cite{checa2020privacy}, studies age of information (AoI) with privacy-aware mobile agents~\cite{jin2021privacy}, and mitigates location leakage in federated radio-map construction~\cite{tian2025geometry}. We examine their operational consequence: how does protecting the location used for resource decisions affect subsequent task-information updates?
+
+Consider a UAV whose location report is used by a multi-antenna base station (BS) to configure a receive beam. Stronger protection can increase inference error and beam mismatch. Localization error alone cannot quantify the resulting cost: radial and angular errors affect array gain differently, and the link margin determines whether a gain loss causes an outage. Missed packets also need not imply an incorrect task estimate. Unlike packet staleness, age of incorrect information (AoII) measures how long that estimate remains incorrect~\cite{maatouk2020aoii}. Studies of imperfect channel information~\cite{chen2021imperfect} and low-altitude multiple-input multiple-output (MIMO) networks~\cite{chen2025air} motivate connecting resource errors to persistent information errors.
+
+We study this connection in a single-UAV uplink with one transmit antenna and multiple BS receive antennas. A three-dimensional Laplace mechanism protects reports; maximum a posteriori (MAP) inference determines a location-aided receive beam, which is evaluated on the true channel. A separate Markovian task source connects link outcomes to AoII. We protect the report interface and assume the controller has no independent precise radio-frequency (RF) localization. The challenge is to connect privacy, inference, directional gain, outage, and source evolution, rather than treating location distortion as communication loss. The contributions are:
+\begin{itemize}
+\item A model connecting three-dimensional report privacy and Bayesian inference to receive-beam decisions and actual transmission outage.
+\item An analysis that specializes established binary-source AoII models to location-dependent outages, capturing the occurrence and persistence of incorrect task estimates.
+\item Location-Aware Privacy--Information Selection (LAPIS), a finite-grid procedure combining established concentration bounds with independent confirmation under privacy or AoII requirements.
+\end{itemize}
+Experiments using measured channel state information (CSI) and geometric controls quantify the tradeoff. At one tested budget, MAP lookup yields an estimated 15.8\% lower AoII. With 200 selection samples per scenario and budget, point-estimate selection violates the AoII constraint in 28.6\% of 500 trials, versus no observed violations for LAPIS, which selects larger disclosure budgets (Section~\ref{sec:results}).
+
+\input{Sections/SystemModel.tex}
+
+\input{Sections/ProblemFormulation.tex}
+
+\input{Sections/LAPIS.tex}
+
+\input{Sections/NumericalResults.tex}
+
+\begin{thebibliography}{00}
+\bibitem{wang2026spatial} Z. Wang, Z. Zhou, C.-J. Zhao, and Y. Liu, ``Generative site-specific beamforming for next-generation spatial intelligence,'' 2026, arXiv:2601.02301.
+\bibitem{jiang2023lae} Y. Jiang, X. Li, G. Zhu, H. Li, J. Deng, K. Han, C. Shen, Q. Shi, and R. Zhang, ``6G non-terrestrial networks enabled low-altitude economy: Opportunities and challenges,'' arXiv:2311.09047, 2023, updated 2024.
+\bibitem{lemagoarou2022location} L. Le Magoarou, T. Yassine, S. Paquelet, and M. Crussi\`ere, ``Deep learning for location based beamforming with NLOS channels,'' in \emph{Proc. IEEE ICASSP}, 2022, pp. 8812--8816, doi: 10.1109/ICASSP43922.2022.9747293.
+\bibitem{zhao2023nerf2} X. Zhao, Z. An, Q. Pan, and L. Yang, ``NeRF$^2$: Neural radio-frequency radiance fields,'' in \emph{Proc. ACM MobiCom}, 2023, pp. 1--15, doi: 10.1145/3570361.3592527.
+\bibitem{wen2025wrfgs} C. Wen, J. Tong, Y. Hu, Z. Lin, and J. Zhang, ``WRF-GS: Wireless radiation field reconstruction with 3D Gaussian splatting,'' in \emph{Proc. IEEE INFOCOM}, 2025, pp. 1--10, doi: 10.1109/INFOCOM55648.2025.11044513.
+\bibitem{wen2026wrfgsplus} C. Wen, J. Tong, Y. Hu, Z. Lin, and J. Zhang, ``Neural representation for wireless radiation field reconstruction: A 3D Gaussian splatting approach,'' \emph{IEEE Trans. Wireless Commun.}, vol. 25, pp. 7490--7504, 2026, doi: 10.1109/TWC.2025.3631663.
+\bibitem{andres2013geo} M. E. Andr\'es, N. E. Bordenabe, K. Chatzikokolakis, and C. Palamidessi, ``Geo-indistinguishability: Differential privacy for location-based systems,'' in \emph{Proc. ACM CCS}, 2013, pp. 901--914, doi: 10.1145/2508859.2516735.
+\bibitem{min2022three} M. Min, L. Xiao, J. Ding, H. Zhang, S. Li, M. Pan, and Z. Han, ``3D geo-indistinguishability for indoor location-based services,'' \emph{IEEE Trans. Wireless Commun.}, vol. 21, no. 7, pp. 4682--4694, 2022, doi: 10.1109/TWC.2021.3132464.
+\bibitem{checa2020privacy} J. J. Checa and S. Tomasin, ``Location-privacy-preserving technique for 5G mmWave devices,'' \emph{IEEE Commun. Lett.}, vol. 24, no. 12, pp. 2692--2695, 2020, doi: 10.1109/LCOMM.2020.3018165.
+\bibitem{jin2021privacy} R. Jin, X. He, and H. Dai, ``Minimizing the age of information in the presence of location privacy-aware mobile agents,'' \emph{IEEE Trans. Commun.}, vol. 69, no. 2, pp. 1053--1067, 2021, doi: 10.1109/TCOMM.2020.3035394.
+\bibitem{tian2025geometry} J. Tian, W. Chen, J. Chen, and P.-Y. Kam, ``Geometry-aligned differential privacy for location-safe federated radio map construction,'' 2025, arXiv:2512.08263.
+\bibitem{maatouk2020aoii} A. Maatouk, S. Kriouile, M. Assaad, and A. Ephremides, ``The age of incorrect information: A new performance metric for status updates,'' \emph{IEEE/ACM Trans. Netw.}, vol. 28, no. 5, pp. 2215--2228, 2020, doi: 10.1109/TNET.2020.3005549.
+\bibitem{chen2021imperfect} Y. Chen and A. Ephremides, ``Scheduling to minimize age of incorrect information with imperfect channel state information,'' \emph{Entropy}, vol. 23, no. 12, Art. no. 1572, 2021, doi: 10.3390/e23121572.
+\bibitem{chen2025air} J. Chen, J. Wang, X. Zhang, L. Bai, T. Q. S. Quek, and M. Debbah, ``Trustworthiness in the air: Age of incorrect information oriented 6G low-altitude networks,'' \emph{IEEE Netw.}, vol. 39, no. 6, pp. 164--172, 2025, doi: 10.1109/MNET.2025.3561054.
+\bibitem{hoeffding1963} W. Hoeffding, ``Probability inequalities for sums of bounded random variables,'' \emph{J. Amer. Statist. Assoc.}, vol. 58, no. 301, pp. 13--30, 1963, doi: 10.1080/01621459.1963.10500830.
+\bibitem{colpaert2023dataset} A. Colpaert, C. Thys, Z. Cui, and S. Pollin, ``MaMIMO-UAV 3D Channel State Information Dataset,'' KU Leuven RDR, 2023, ver. 3.0, dataset, doi: 10.48804/0IMQDF.
+\end{thebibliography}
+
+\end{document}
