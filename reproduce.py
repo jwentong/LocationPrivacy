@@ -1,4 +1,4 @@
-"""Run the unmodified basic_v1 paper protocol and verify numerical outputs."""
+"""Run the unmodified basic_v2 paper protocol and verify numerical outputs."""
 import os
 from pathlib import Path
 import subprocess

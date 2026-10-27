@@ -4,7 +4,7 @@
 
 Reproducibility materials for a conference-paper draft intended for ICC 2027. This is a research draft, not an accepted publication. The author block remains a placeholder pending final author information.
 
-[Paper PDF](paper/IEEE-conference-template-062824.pdf) | [LaTeX source](paper/IEEE-conference-template-062824.tex) | [Reference parameters](reference_results/basic_v1/parameters.csv)
+[Paper PDF](paper/IEEE-conference-template-062824.pdf) | [LaTeX source](paper/IEEE-conference-template-062824.tex) | [Reference parameters](reference_results/basic_v2/parameters.csv)
 
 A single-antenna UAV reports a 3D Laplace-perturbed location to a multi-antenna base station. MAP location inference selects a frozen receive beam. Privacy-induced outage is linked to age of incorrect information (AoII) for a symmetric binary task source. **LAPIS** (Location-Aware Privacy--Information Selection) chooses a fixed disclosure budget using simultaneous confidence bounds and independent confirmation.
 
@@ -23,7 +23,7 @@ python -m unittest discover -s Experiments -p "test_*.py"
 python reproduce.py
 ```
 
-`reproduce.py` runs the complete suite, generates the parameter table and three figure groups, and compares generated numerical CSVs against the committed reference results. It does not simply copy the reference tables. Outputs go to `Experiments/results/basic_v1/`; committed `reference_results/basic_v1/` stays unchanged. Running again overwrites only generated outputs. The original run took about 89 seconds; runtime depends on hardware and numerical-library threading. The wrapper limits BLAS/OpenMP threads for repeatability. Different platforms may introduce small floating-point differences.
+`reproduce.py` runs the complete suite, generates the parameter table and three figure groups, and compares generated numerical CSVs against the committed reference results. It does not simply copy the reference tables. Outputs go to `Experiments/results/basic_v2/`; committed `reference_results/basic_v2/` stays unchanged. Running again overwrites only generated outputs. The denser basic_v2 protocol takes several minutes; runtime depends on hardware and numerical-library threading. The wrapper limits BLAS/OpenMP threads for repeatability. Different platforms may introduce small floating-point differences.
 
 To check an existing run without rerunning: `python verify_results.py`.
 
@@ -31,16 +31,16 @@ To check an existing run without rerunning: `python verify_results.py`.
 
 | Experiment | Expected result | Output |
 |---|---|---|
-| Mechanism and theory | At normalized budget eta=1, MAP AoII 0.04462115 versus direct-report 0.05297264 (15.8% reduction) | `mechanism.csv`, `theory_validation.csv`, `figures/mechanism_theory.pdf` |
-| Array-size controls | At eta=0.1 and fixed transmit power, AoII rises from about 0.823 (M=16) to 2.373 (M=256) | `array.csv`, `rayleigh_control.csv`, `figures/array_effect.pdf` |
-| Budget and reliability | With 200 selection samples per scenario/budget: point-estimate selection violates the AoII threshold in 143/500 trials; LAPIS in 0/500 | `budget_selection.csv`, `reliability.csv`, `figures/selection_reliability.pdf` |
+| Mechanism and theory | At normalized budget eta=1, MAP AoII 0.04462115 versus direct-report 0.05296476 (15.8% reduction) | `mechanism.csv`, `theory_validation.csv`, `figures/mechanism_theory.pdf` |
+| Array-size controls | At eta=0.1 and fixed transmit power, AoII rises from about 0.821 (M=16) to 2.378 (M=256) | `array.csv`, `rayleigh_control.csv`, `figures/array_effect.pdf` |
+| Budget and reliability | With 200 selection samples per scenario/budget: point-estimate selection violates the AoII threshold in 657/1000 trials; LAPIS in 0/1000 | `budget_selection.csv`, `reliability.csv`, `figures/selection_reliability.pdf` |
 | Parameter table | Fixed seeds, budgets, sample counts, calibration, and model settings | `parameters.csv`, `config.json` |
 
-Zero observed violations does not establish zero violation probability. With 500 trials, the two-sided 95% Clopper--Pearson upper bound for 0/500 is about 0.735%. The reliability target is AoII 0.05; stronger confidence protection can require a larger disclosure budget.
+Zero observed violations does not establish zero violation probability. With 1,000 trials, the two-sided 95% Clopper--Pearson upper bound for 0/1000 is about 0.368%. The reliability target is AoII 0.05; stronger confidence protection can require a larger disclosure budget.
 
-![Mechanism and theory](reference_results/basic_v1/figures/mechanism_theory.png)
-![Array-size controls](reference_results/basic_v1/figures/array_effect.png)
-![Budget selection and reliability](reference_results/basic_v1/figures/selection_reliability.png)
+![Mechanism and theory](reference_results/basic_v2/figures/mechanism_theory.png)
+![Array-size controls](reference_results/basic_v2/figures/array_effect.png)
+![Budget selection and reliability](reference_results/basic_v2/figures/selection_reliability.png)
 
 ## Data provenance and rebuilding from the public source
 
@@ -59,15 +59,21 @@ python reproduce.py
 
 The downloader uses official file IDs 119641 and 119648 and verifies SHA-256. It never disables TLS certificate checks. Raw files are git-ignored. Alignment uses subcarrier 50, stride 100, zero clock offset, and GPS interpolation with gap rejection. Complex CSI follows the provider binary convention. XY coordinates are local meters; altitude is relative to takeoff, not verified absolute BS altitude. Freezing uses 10 m cells, a 2 m guard band, a 0.7 cell-training fraction, and seed 20261027. NPZ ZIP-container hashes can differ across rebuilds despite identical arrays; numerical reproduction is the final check.
 
+## Denser simulation and figure revision (basic_v2)
+
+The current paper uses 61 budget points (previously 21), 13 selection-sample sizes (previously 5), and 1,000 repetitions per size (previously 500). Mechanism Monte Carlo uses 300,000 draws per scenario/budget; the separate geometric control uses 30,000 report draws per location/budget. The source-recursion check now covers 36 controlled source/outage combinations plus nine empirical marginals, each with 5,000,000 slots. All newly plotted simulation points are evaluated, not interpolated. Increasing grid density can change selected budgets and false-selection rates; it does not expand the real measurement coverage.
+
+Figures distinguish curves by solid, dashed, dash-dot, or dotted lines and distinct markers. Times-family text uses 8 pt labels/titles, 7 pt ticks and 6.5 pt legends at approximately 7.1-inch width, consistent with the compact IEEE caption typography. The old `reference_results/basic_v1/` is retained as a historical snapshot; its numbers do not describe the revised paper.
+
 ## Statistical protocol and limits
 
-- Normalized budget eta=epsilon*r0, r0=10 m, 21 log-spaced budgets from 0.1 to 10; task flip probability alpha=0.1. Privacy is per report; repeated reports compose and do not imply bounded lifetime privacy.
+- Normalized budget eta=epsilon*r0, r0=10 m, 61 log-spaced budgets from 0.1 to 10; task flip probability alpha=0.1. Privacy is per report; repeated reports compose and do not imply bounded lifetime privacy.
 - The measured experiment uses three data-derived representative cell centers, a uniform prior, equal scenario weights, and IID resampling of held-out CSI within each cell (7, 17, and 78 snapshots). It evaluates a fixed hovering-location conditional model, not temporally correlated flight-trace AoII. Training-only median CSI energy sets the common nominal 10 dB SNR scale; this is not an absolutely calibrated RF link budget.
 - The frozen map returns a covariance-principal receive beam using location only. Actual held-out CSI evaluates gain but is not supplied to the beam controller. Direct-report lookup uses the same frozen map without MAP projection.
-- Compute nonlinear AoII per scenario and then average. The source recursion is independently validated over 29 configurations, each using 5,000,000 slots after burn-in. AoII is reported in slot units.
+- Compute nonlinear AoII per scenario and then average. The source recursion is independently validated over 45 configurations, each using 5,000,000 slots after burn-in. AoII is reported in slot units.
 - The array experiment is a separate ideal Rician geometric control (M=1,16,64,256), not subarray extraction from the measurement. Fixed-power and equal-aligned-SNR cases are distinguished; Rayleigh provides a direction-insensitive control.
-- Selection uses physical noise/CSI samples; confirmation and reliability repetitions use independent, marginally equivalent Bernoulli draws conditional on the same finite empirical bank. Confidence bounds address Monte Carlo error conditional on that bank, not uncertainty about the true channel population. Main Ns=20,000, Nc=100,000, failure-probability split 0.025+0.025, and 500 reliability repetitions at each tested Ns. Shared random numbers across budgets are intentional; union bounds do not require independence across budgets.
-- `run_basic_experiments.py` is the fixed **basic_v1 paper protocol**, not a general parameter-sweep API. Some analytical controls explicitly use the paper's alpha, threshold, and geometry constants; changing CONFIG alone is not a supported new experiment. Create and validate a separate protocol for extensions.
+- Selection uses physical noise/CSI samples; confirmation and reliability repetitions use independent, marginally equivalent Bernoulli draws conditional on the same finite empirical bank. Confidence bounds address Monte Carlo error conditional on that bank, not uncertainty about the true channel population. Main Ns=20,000, Nc=100,000, failure-probability split 0.025+0.025, and 1,000 reliability repetitions at each tested Ns. Shared random numbers across budgets are intentional; union bounds do not require independence across budgets.
+- `run_basic_experiments.py` is the fixed **basic_v2 paper protocol**, not a general parameter-sweep API. Some analytical controls explicitly use the paper's alpha, threshold, and geometry constants; changing CONFIG alone is not a supported new experiment. Create and validate a separate protocol for extensions.
 
 ## Build the paper
 
@@ -85,7 +91,7 @@ References are embedded; BibTeX is not required. The included draft PDF is six p
 
 - `Experiments/`: simulation, preprocessing, and unit tests.
 - `Experiments/data/`: attributed empirical derivatives and preprocessing metadata.
-- `reference_results/basic_v1/`: original numerical results, parameter table, and figures.
+- `reference_results/basic_v2/`: original numerical results, parameter table, and figures.
 - `paper/`: draft PDF, editable LaTeX sections, system diagram, and result figures.
 - `reproduce.py`, `verify_results.py`, `download_data.py`: reproduction entry points.
 

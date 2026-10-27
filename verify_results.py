@@ -3,8 +3,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 root = Path(__file__).resolve().parent
-reference = root / "reference_results/basic_v1"
-actual = root / "Experiments/results/basic_v1"
+reference = root / "reference_results/basic_v2"
+actual = root / "Experiments/results/basic_v2"
 # parameters.csv contains runtime and script hashes, intentionally not compared.
 files = [p for p in sorted(reference.glob("*.csv")) if p.name != "parameters.csv"]
 for path in files:
@@ -18,4 +18,4 @@ for path in files:
         else:
             pd.testing.assert_series_equal(observed[col], expected[col], check_names=False)
     print(f"PASS {path.name}: {len(expected)} rows")
-print(f"Verified {len(files)} numerical result tables against basic_v1 references.")
+print(f"Verified {len(files)} numerical result tables against basic_v2 references.")

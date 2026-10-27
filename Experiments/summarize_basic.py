@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 root=Path(__file__).resolve().parent
-out=root/'results/basic_v1'
+out=root/'results/basic_v2'
 config=json.loads((out/'config.json').read_text())
 m=pd.read_csv(out/'mechanism.csv')
 v=pd.read_csv(out/'theory_validation.csv')
@@ -18,7 +18,7 @@ gain=100*(1-mid.aoii/mid.aoii_direct)
 p2=s[(s.problem=='P2')&(s.threshold==.05)].iloc[0]
 small=r[r.Ns==200].set_index('method')
 coverage=int(((v.simulation-v.theory).abs()<=v.halfwidth95).sum())
-text=f'''# 基础实验结果与结论（basic_v1）
+text=f'''# 基础实验结果与结论（basic_v2）
 
 本报告由 summarize_basic.py 从 CSV 自动生成。原始数据：KU Leuven MaMIMO-UAV，doi:10.48804/0IMQDF；使用一段 50 秒 64 通道记录。500 个位置/CSI 对，空间留出 102 个 CSI，7 个训练 cell 波束，3 个公开场景。不是跨场景部署验证。
 
@@ -35,8 +35,8 @@ text=f'''# 基础实验结果与结论（basic_v1）
 - eta 从 {start.eta:g} 增加至 {end.eta:g}，中断由 {start.q_exact:.6f} 降至 {end.q_exact:.6f}；AoII/T 由 {start.aoii:.6f} 降至 {end.aoii:.6f}。
 - eta=1 下 MAP AoII/T={mid.aoii:.6f}，直接报告查询为 {mid.aoii_direct:.6f}，同预算相对下降 {gain:.3f}%。
 - 强隐私端，MAP 平均中断={start.q_exact:.6f}，直接查询={start.q_direct:.6f}；但 MAP 平均 AoII={start.aoii:.6f} 小于直接查询的 {start.aoii_direct:.6f}。这是逐场景非线性聚合现象，不说明 MAP 普遍最优。
-- 20 组受控源验证最大相对偏差 {100*v[v.kind=='controlled'].relative_error.max():.3f}%；9 组实测模型边际验证最大相对偏差 {100*v[v.kind=='measured_marginal'].relative_error.max():.3f}%；全部配置最大绝对偏差 {abs(v.theory-v.simulation).max():.6f} 时隙。
-- {coverage}/29 个点落入各自点态 95% 批均值区间。这些区间不是 29 点同时覆盖区间；个别偏离不能通过反复改种子消除。
+- {int((v.kind=='controlled').sum())} 组受控源验证最大相对偏差 {100*v[v.kind=='controlled'].relative_error.max():.3f}%；9 组实测模型边际验证最大相对偏差 {100*v[v.kind=='measured_marginal'].relative_error.max():.3f}%；全部配置最大绝对偏差 {abs(v.theory-v.simulation).max():.6f} 时隙。
+- {coverage}/{len(v)} 个点落入各自点态 95% 批均值区间。这些区间不是 {len(v)} 点同时覆盖区间；个别偏离不能通过反复改种子消除。
 
 ## 图组二：阵列规模
 
@@ -52,8 +52,8 @@ M=1 对预算不敏感；额外 Rayleigh 控制也方向无关。大阵列的准
 
 - 四个 P1 隐私上限下均选择最大可行网格预算，与精确条件模型的网格最优一致；所有 G 和确认区间见 budget_selection.csv。不声称存在内点最优。
 - P2 Dmax/T=0.05：选择 eta={p2.eta:.6f}，精确条件 AoII={p2.J_exact:.6f}，独立确认区间 [{p2.L_confirm:.6f}, {p2.U_confirm:.6f}]，状态={p2.status}。
-- Ns=200、500 次宏重复：点估计法违反率 {100*small.loc['point_estimate','violation_rate']:.1f}%；LAPIS 观测违反率 {100*small.loc['LAPIS','violation_rate']:.1f}%，但零次违反的双侧 95% 二项区间上端为 {100*small.loc['LAPIS','false_issue_upper95']:.3f}%，不是零风险。
-- 对应平均预算：LAPIS={small.loc['LAPIS','mean_eta']:.6f}，点估计={small.loc['point_estimate','mean_eta']:.6f}。可靠性以额外披露为代价；样本量增加后两者趋向 eta=1。
+- Ns=200、{config['repeats']} 次宏重复：点估计法违反率 {100*small.loc['point_estimate','violation_rate']:.1f}%；LAPIS 观测违反率 {100*small.loc['LAPIS','violation_rate']:.1f}%，但零次违反的双侧 95% 二项区间上端为 {100*small.loc['LAPIS','false_issue_upper95']:.3f}%，不是零风险。
+- 对应平均预算：LAPIS={small.loc['LAPIS','mean_eta']:.6f}，点估计={small.loc['point_estimate','mean_eta']:.6f}。可靠性以额外披露为代价；样本量增加后两者趋近条件模型的可行边界。
 - 可靠性实验用精确 q 的等价 Bernoulli 边际与独立预算流，以隔离区间选择效果。它不测量共享物理随机数的方差降低收益。两方法使用同一组选择估计，确认样本独立且不用于重选。
 
 ## 精确参考与适用范围

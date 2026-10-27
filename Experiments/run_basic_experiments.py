@@ -20,20 +20,22 @@ from scipy.spatial.distance import cdist
 from scipy.stats import beta, ncx2, t
 
 ROOT = Path(__file__).resolve().parent
-OUT = ROOT/'results/basic_v1'
+OUT = ROOT/'results/basic_v2'
 FIG = OUT/'figures'
-CONFIG = dict(version='basic_v1', seed=20261029, alpha=.1, r0_m=10,
-              eta_grid=np.geomspace(.1, 10, 21).tolist(), delta_selection=.025,
+CONFIG = dict(version='basic_v2', seed=20261029, alpha=.1, r0_m=10,
+              eta_grid=np.geomspace(.1, 10, 61).tolist(), delta_selection=.025,
               delta_confirmation=.025, Ns=20000, Nc=100000,
-              repeats=500, reliability_N=[200, 500, 2000, 5000, 20000],
+              repeats=1000, reliability_N=[200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000, 15000, 20000],
               D_values=[.03, .05, .1, .2], eta_caps=[.3, 1., 3., 10.],
-              mechanism_N=100000, source_slots=5000000, source_batch=10000,
+              mechanism_N=300000, source_slots=5000000, source_batch=10000,
               reference_snr_db=10, spectral_efficiency=1,
-              geometric_N=12000, geometric_kappa=10, geometric_alpha=.1,
+              geometric_N=30000, geometric_kappa=10, geometric_alpha=.1,
               geometry_reference_distance=150, geometric_pathloss_exponent=2,
               geometry_single_element_snr_db=-5,
               geometry_equal_aligned_snr_db=13.061799739838872,
-              geometry_arrays=[1,4,8,16])
+              geometry_arrays=[1,4,8,16],
+              figure_style=dict(labels_pt=8,ticks_pt=7,legend_pt=6.5,font='Times family',
+                                width_inches=7.1,line_styles=['solid','dashed','dash-dot','dotted']))
 
 
 def F(q, a=.1):
@@ -153,13 +155,13 @@ def simulate_source(a,q,seed,slots=1000000,batch=10000):
 def source_validation(q):
     rows=[]
     for a in [.05,.1,.3,.5]:
-        for outage in [.1,.3,.5,.7,.9]:
+        for outage in np.linspace(.1,.9,9):
             mean,se=simulate_source(a,outage,CONFIG['seed']+len(rows),CONFIG['source_slots'],CONFIG['source_batch'])
             rows.append(dict(alpha=a,q=outage,theory=float(F(outage,a)),simulation=mean,se=se,
                              halfwidth95=float(t.ppf(.975,CONFIG['source_slots']//CONFIG['source_batch']-1)*se),kind='controlled'))
     # End-to-end values: actual report inference and empirical link margins
     # define exact Bernoulli q; independent slots have that same distribution.
-    for e in [0,10,20]:
+    for e in [0,len(q)//2,len(q)-1]:
         for j in range(q.shape[1]):
             mean,se=simulate_source(.1,float(q[e,j]),CONFIG['seed']+len(rows),CONFIG['source_slots'],CONFIG['source_batch'])
             rows.append(dict(alpha=.1,q=float(q[e,j]),theory=float(F(q[e,j])),simulation=mean,se=se,
@@ -284,9 +286,12 @@ def selection(q):
 
 
 def plots(mechanism,validation,array,curve,reliability):
-    plt.rcParams.update({'font.family':'serif','font.size':9,'axes.labelsize':9,'axes.titlesize':9,'legend.fontsize':7,
+    plt.rcParams.update({'font.family':'serif','font.serif':['Times New Roman','Times','DejaVu Serif'],
+                         'mathtext.fontset':'stix','font.size':8,'axes.labelsize':8,'axes.titlesize':8,
+                         'xtick.labelsize':7,'ytick.labelsize':7,'legend.fontsize':6.5,
+                         'lines.linewidth':1.1,'legend.handlelength':3.0,
                          'pdf.fonttype':42,'ps.fonttype':42})
-    fig,axs=plt.subplots(1,3,figsize=(7.1,2.15))
+    fig,axs=plt.subplots(1,3,figsize=(7.1,2.0))
     ax=axs[0];ax.semilogx(mechanism.eta,mechanism.q_exact,label='MAP, exact')
     ax.semilogx(mechanism.eta[::3],mechanism.q_mc[::3],'o',ms=3,label='MAP, MC')
     ax.semilogx(mechanism.eta,mechanism.q_direct,'--',label='Direct report')
@@ -295,30 +300,30 @@ def plots(mechanism,validation,array,curve,reliability):
     ax.semilogx(mechanism.eta,mechanism.aoii_direct,'--',label='Direct report')
     ax.set(xlabel=r'Budget $\eta$',ylabel=r'Mean AoII / $T$',title='(b) Privacy cost');ax.legend()
     ax=axs[2]
-    for a,b in validation[validation.kind=='controlled'].groupby('alpha'):
-        xx=np.linspace(.1,.9,200);line=ax.plot(xx,F(xx,a),label=rf'$\alpha={a:g}$')[0]
-        ax.errorbar(b.q,b.simulation,yerr=b.halfwidth95,fmt='o',ms=3,color=line.get_color(),capsize=2)
+    for (a,b),style,marker in zip(validation[validation.kind=='controlled'].groupby('alpha'),['-','--','-.',':'],['o','s','^','D']):
+        xx=np.linspace(.1,.9,200);line=ax.plot(xx,F(xx,a),ls=style,label=rf'$\alpha={a:g}$')[0]
+        ax.errorbar(b.q,b.simulation,yerr=b.halfwidth95,fmt=marker,ms=2.5,mfc='white',mew=.6,color=line.get_color(),capsize=1.5)
     ax.set(xlabel='Outage probability',ylabel=r'Mean AoII / $T$',title='(c) Formula vs. slot simulation');ax.legend(ncol=2)
     for ax in axs:ax.grid(alpha=.2)
     fig.tight_layout(pad=.5);save(fig,'mechanism_theory')
-    fig,axs=plt.subplots(1,2,figsize=(7.1,2.25))
+    fig,axs=plt.subplots(1,2,figsize=(7.1,1.95))
     for ax,mode,title in zip(axs,['fixed_power','equal_aligned_snr'],['(a) Fixed transmit power','(b) Fixed aligned-SNR scale']):
-        for m,b in array[array['mode']==mode].groupby('M'):
-            ax.semilogx(b.eta,b.aoii,label=f'M={m}')
+        for (m,b),style,marker in zip(array[array['mode']==mode].groupby('M'),['-','--','-.',':'],['o','s','^','D']):
+            ax.semilogx(b.eta,b.aoii,ls=style,marker=marker,markevery=5,ms=2.5,mfc='white',mew=.6,label=f'M={m}')
         ax.set(xlabel=r'Budget $\eta$',ylabel=r'Mean AoII / $T$',title=title);ax.grid(alpha=.2);ax.legend(ncol=2)
     fig.tight_layout(pad=.5);save(fig,'array_effect')
-    fig,axs=plt.subplots(1,3,figsize=(7.1,2.2))
+    fig,axs=plt.subplots(1,3,figsize=(7.1,2.0))
     ax=axs[0];ax.fill_between(curve.eta,curve.L,curve.U,alpha=.2,label='Selection bounds')
     ax.semilogx(curve.eta,curve.J_exact,label='Exact empirical model')
     ax.axhline(.05,ls='--',color='black',lw=.8,label=r'$D_{\max}/T=0.05$')
     ax.set(xlabel=r'Budget $\eta$',ylabel=r'Mean AoII / $T$',title='(a) Budget feasibility');ax.legend()
     ax=axs[1]
-    for method,b in reliability.groupby('method'):
-        ax.semilogx(b.Ns,b.violation_rate,'o-',ms=3,label=method.replace('_',' '))
+    for (method,b),style,marker in zip(reliability.groupby('method'),['-','--'],['o','s']):
+        ax.semilogx(b.Ns,b.violation_rate,ls=style,marker=marker,ms=2.8,label=method.replace('_',' '))
     ax.set(xlabel=r'Selection samples $N_s$',ylabel='False-selection rate',title='(b) Constraint violations');ax.legend()
     ax=axs[2]
-    for method,b in reliability.groupby('method'):
-        ax.semilogx(b.Ns,b.mean_eta,'o-',ms=3,label=method.replace('_',' '))
+    for (method,b),style,marker in zip(reliability.groupby('method'),['-','--'],['o','s']):
+        ax.semilogx(b.Ns,b.mean_eta,ls=style,marker=marker,ms=2.8,label=method.replace('_',' '))
     ax.set(xlabel=r'Selection samples $N_s$',ylabel=r'Mean selected budget $\eta$',title='(c) Cost of conservatism');ax.legend()
     for ax in axs:ax.grid(alpha=.2)
     fig.tight_layout(pad=.5);save(fig,'selection_reliability')
@@ -351,6 +356,7 @@ def checks():
 
 
 def main():
+    if CONFIG['Ns']>CONFIG['mechanism_N']: raise ValueError('Selection requires Ns <= mechanism_N')
     start=time.perf_counter();OUT.mkdir(parents=True,exist_ok=True);FIG.mkdir(exist_ok=True)
     checks();print('Physics/statistical checks passed',flush=True)
     d,c,g,w,o,conf,q,scale=model()
@@ -358,7 +364,7 @@ def main():
     mechanism=paired_mechanism(d,c,g,w,o,conf,q,scale)
     print('Measured mechanism complete',flush=True)
     validation=source_validation(q)
-    print('29 source validation configurations complete',flush=True)
+    print(f'{len(validation)} source validation configurations complete',flush=True)
     array=array_experiment();print('Array controls complete',flush=True)
     curve,selected,reliability=selection(q);print('Selection and reliability complete',flush=True)
     plots(mechanism,validation,array,curve,reliability)
