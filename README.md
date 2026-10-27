@@ -13,8 +13,8 @@ A single-antenna UAV reports a 3D Laplace-perturbed location to a multi-antenna 
 Tested with Python 3.13.11 on Windows; the pinned packages require Python 3.11 or newer. No GPU, WRF-GS, NeRF2, or additional dataset download is required for the bundled empirical model.
 
 ```bash
-git clone https://github.com/jwentong/Location-Privacy-Based-Resource-Allocation.git
-cd Location-Privacy-Based-Resource-Allocation
+git clone https://github.com/jwentong/LocationPrivacy.git
+cd LocationPrivacy
 python -m venv .venv
 # Linux/macOS: source .venv/bin/activate
 # Windows PowerShell: .venv/Scripts/Activate.ps1
