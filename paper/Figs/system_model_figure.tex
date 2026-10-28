@@ -1,0 +1,9 @@
+% Standalone wrapper for the same editable diagram used in the manuscript.
+\documentclass{article}
+\usepackage[paperwidth=18cm,paperheight=7cm,margin=0.25cm]{geometry}
+\usepackage{amsmath,amssymb,graphicx,tikz}
+\usetikzlibrary{arrows.meta,calc,positioning}
+\pagestyle{empty}
+\begin{document}
+\noindent\resizebox{\textwidth}{!}{\input{system_model.tex}}
+\end{document}

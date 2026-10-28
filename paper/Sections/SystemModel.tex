@@ -5,14 +5,8 @@ In Fig.~\ref{fig:system}, a single-antenna UAV communicates with a BS at $\mathb
 
 Each slot lasts $T$. At its start, the UAV generates state $S_t$ and a noisy location report. A reliable control path delivers the report before beam configuration and state-packet transmission. The state remains constant within the slot; reception is assessed at its end. Failed packets are discarded. Fixed control overhead leaves data duration $\tau_d$, identically across budgets.
 
-Before beam selection, the controller observes reports, the public prior, and a frozen beam map, but no independent precise location or full instantaneous array CSI. Privacy is guaranteed only for the report interface, not for RF localization observations. The task source is independent of location and channel randomness and carries no true location.
+The controller selects beams using reports, the public prior, and a frozen map. Its observations exclude independent precise localization and full instantaneous array CSI. The privacy guarantee covers reports; RF localization requires a separate threat model. Task states are independent of location and channel randomness.
 
-\begin{figure*}[t]
-\centering
-\resizebox{\textwidth}{!}{\input{Figs/system_model.tex}}
-\caption{Location-report privacy and its communication cost in a single-UAV uplink. The noisy report determines the inferred location and receive beam; the task packet propagates over the channel at the true location. The orange marker is an estimate, not another UAV. Location and task packets have distinct roles.}
-\label{fig:system}
-\end{figure*}
 
 \subsection{Private Location Reporting and Inference}
 For a fixed budget $\epsilon>0$, the UAV releases $\mathbf Z_t=\mathbf x+\mathbf N_t$, independently each slot. Following geo-indistinguishability~\cite{andres2013geo,min2022three}, we use the three-dimensional isotropic Laplace density
@@ -28,7 +22,7 @@ The triangle inequality gives
  f_\epsilon(\mathbf z\mid\mathbf x').
  \label{eq:gi}
 \end{equation}
-Thus $\eta=\epsilon r_0$ is the dimensionless single-report budget within a protection distance $r_0$; smaller $\eta$ provides stronger protection. Here $\epsilon$ has units $\mathrm m^{-1}$. Reports are not clipped to the candidate region. The noise radius satisfies $\|\mathbf N_t\|_2\sim\mathrm{Gamma}(3,1/\epsilon)$ in shape--scale notation, with mean $3/\epsilon$. 
+Thus $\eta=\epsilon r_0$ is the dimensionless single-report budget within a protection distance $r_0$; smaller $\eta$ provides stronger protection. Here $\epsilon$ has units $\mathrm m^{-1}$. Reports retain their full spatial support. The noise radius satisfies $\|\mathbf N_t\|_2\sim\mathrm{Gamma}(3,1/\epsilon)$ in shape--scale notation, with mean $3/\epsilon$. 
 
 Let $\mathcal X=\{\mathbf x_j\}_{j=1}^{N_{\mathrm x}}$, with $N_{\mathrm x}=|\mathcal X|$, be a public candidate set with fixed prior probabilities $\pi_j>0$, $\sum_j\pi_j=1$. A report $\mathbf z_t$ yields posterior
 \begin{equation}
@@ -39,7 +33,7 @@ Let $\mathcal X=\{\mathbf x_j\}_{j=1}^{N_{\mathrm x}}$, with $N_{\mathrm x}=|\ma
  \widehat{\mathbf x}_t=\mathbf x_{\arg\max_j\rho_t(j)}.
  \label{eq:map}
 \end{equation}
-Ties use a fixed rule. The prior and candidate set are public and fixed before reporting. Current-report MAP is a prescribed receiver, not an optimal attacker or AoII-optimal beam rule; temporal filtering is excluded. Post-processing preserves~\eqref{eq:gi}. For $K$ retained reports, the likelihood ratio is bounded by $e^{K\epsilon\|\mathbf x-\mathbf x'\|_2}$, so the per-report budget does not guarantee session-level privacy.
+Ties use a fixed rule. The prior and candidate set are public and fixed before reporting. The prescribed receiver applies current-report MAP; optimal attacks, AoII-optimal beam selection, and temporal filtering remain outside the scope. Post-processing preserves~\eqref{eq:gi}. For $K$ retained reports, the likelihood ratio is bounded by $e^{K\epsilon\|\mathbf x-\mathbf x'\|_2}$, which quantifies the cumulative privacy loss across the session.
 
 \subsection{Location-Aided Receive Beamforming}
 We adapt location-to-beam mapping~\cite{lemagoarou2022location} to uplink combining. For wavelength $\lambda_c$ and array-relative element locations $\mathbf r_m$, the far-field narrowband steering vector for $\mathbf v\ne\mathbf b$ is
@@ -67,7 +61,7 @@ Given a frozen map output $\boldsymbol\psi(\mathbf v)\in\mathbb C^M\setminus\{\m
  \qquad \|\mathbf w_t\|_2=1.
  \label{eq:beam}
 \end{equation}
-The geometric model uses $\boldsymbol\psi(\mathbf v)=\mathbf a(\mathbf v)$; the empirical map uses a covariance eigenvector (Section~\ref{sec:results}). Channel predictions are also compatible, but scalar power alone cannot specify~\eqref{eq:beam}. A fixed unit beam handles zero outputs. The prescribed digital beam map has no constant-modulus constraint and is not jointly optimized with the budget.
+The geometric model uses $\boldsymbol\psi(\mathbf v)=\mathbf a(\mathbf v)$; the empirical map uses a covariance eigenvector (Section~\ref{sec:results}). Channel predictions with spatial phase information also support~\eqref{eq:beam}. A fixed unit beam handles zero outputs. The digital beam map permits general complex weights and remains fixed during budget optimization.
 
 For unit-energy data symbol $s_t$ and receiver noise $\mathbf n_t^{\rm RF}\sim\mathcal{CN}(\mathbf0,\sigma^2\mathbf I_M)$, independent of other randomness, the received signal and combined signal-to-noise ratio (SNR) are
 \begin{align}
@@ -110,4 +104,4 @@ The linear AoII is $\Delta_t^{\rm II}=TA_t$, where
  \end{cases}
  \label{eq:aoii}
 \end{equation}
-Source reversal can restore correctness without reception, distinguishing this slot-end AoII from packet staleness.
+Source reversal can restore correctness between successful receptions; this event resets the slot-end AoII.

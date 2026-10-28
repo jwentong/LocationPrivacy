@@ -18,7 +18,14 @@ All other transitions return to zero. The stationary probabilities are $\xi_0=(1
   \left[1-(1-2\alpha)q_\epsilon(\mathbf x)\right]}.
  \label{eq:mean-aoii}
 \end{align}
-For $0<\alpha\le1/2$,~\eqref{eq:mean-aoii} increases with $q$, and perfect transmission yields zero slot-end AoII. This does not establish monotonicity in $\epsilon$.
+For $0<\alpha\le1/2$,~\eqref{eq:mean-aoii} increases with $q$, and perfect transmission yields zero slot-end AoII. Monotonicity in $\epsilon$ additionally depends on inference and beam selection.
+% Float declarations placed early to avoid a trailing figure-only page.
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{Figs/mechanism_theory.pdf}
+\caption{Empirical-channel privacy cost and analytical validation. Solid MAP curves in (a) use analytical integration; markers and dashed direct-report curves use Monte Carlo (MC). In (c), lines are analytical and markers are direct task-state simulations with nominal pointwise 95\% batch-mean intervals for 36 controlled settings.}
+\label{fig:mechanism}
+\end{figure*}
 
 \subsection{Fixed Privacy-Budget Selection}
 Let $\mathcal E\subset(0,\infty)$ be a finite set of candidate budgets, fixed before testing. To select a common budget for a public distribution of hovering scenarios, specify weights $\omega_j\ge0$, $\sum_j\omega_j=1$, independently of the private test location, and define
@@ -27,7 +34,7 @@ Let $\mathcal E\subset(0,\infty)$ be a finite set of candidate budgets, fixed be
            \overline\Delta_\epsilon^{\rm II}(\mathbf x_j).
  \label{eq:scenario-cost}
 \end{equation}
-Weights describe separate sessions, not UAV motion, and differ in role from the MAP prior. AoII must be averaged after conditioning on location; applying~\eqref{eq:mean-aoii} to average outage generally differs.
+Weights aggregate separate hovering sessions; the MAP prior governs inference within each session. AoII must be averaged after conditioning on location; applying~\eqref{eq:mean-aoii} to average outage generally differs.
 
 Given a maximum single-report budget $\eta_{\max}$ at distance $r_0$, the primary problem is
 \begin{equation}
@@ -37,7 +44,7 @@ Given a maximum single-report budget $\eta_{\max}$ at distance $r_0$, the primar
  \end{aligned}
  \label{eq:p1}
 \end{equation}
-Algorithm~\ref{alg:lapis} selects $\epsilon$ offline for the entire session. The stationary objective does not imply a bounded lifetime privacy guarantee. If a finite session of $K$ reports instead has total budget $B_{\rm priv}$ under the repeated-location model, replace the constraint by $K\epsilon r_0\le B_{\rm priv}$. This is static selection, not temporal budget allocation.
+Algorithm~\ref{alg:lapis} selects $\epsilon$ offline for the entire session. Repeated reports accumulate privacy loss across the session. For a finite session of $K$ reports with total budget $B_{\rm priv}$ under the repeated-location model, replace the constraint by $K\epsilon r_0\le B_{\rm priv}$. The selected budget remains fixed throughout the session.
 
 An alternative design perspective prioritizes the strongest report protection compatible with an AoII requirement $D_{\max}$:
 \begin{equation}
@@ -48,10 +55,4 @@ An alternative design perspective prioritizes the strongest report protection co
 \end{equation}
 Figure~\ref{fig:mechanism} evaluates the mechanism and AoII mapping. Problems (P1) and (P2) specify alternative requirements. If conditional outages decrease with $\epsilon$, the largest feasible budget solves (P1); no interior optimum is required. Otherwise, candidates are compared under identical link/source conditions, and the selected budget is independently confirmed.
 
-% Float declarations placed early to avoid a trailing figure-only page.
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{Figs/mechanism_theory.pdf}
-\caption{Empirical-channel privacy cost and analytical validation. Solid MAP curves in (a) use analytical integration; markers and dashed direct-report curves use Monte Carlo (MC). In (c), lines are analytical and markers are direct task-state simulations with nominal pointwise 95\% batch-mean intervals for 36 controlled settings.}
-\label{fig:mechanism}
-\end{figure*}
+

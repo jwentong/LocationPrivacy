@@ -24,7 +24,7 @@ Algorithm~\ref{alg:lapis} evaluates a finite grid and selects one fixed reportin
  \STATE If $\mathcal F_D=\varnothing$, \textbf{return} infeasible when $\min L_\epsilon>D_{\max}$, otherwise unconfirmed; else set $\epsilon^\star=\min\mathcal F_D$.
 \ENDIF
 \STATE Freeze $\epsilon^\star$; evaluate with $N_c$ new samples per scenario and radius $d_c$ to obtain $[L_c,U_c]$.
-\STATE \textbf{return} budget, interval, (P1) privacy status and $G$, or (P2) confirmation iff $U_c\le D_{\max}$; do not retune.
+\STATE \textbf{return} budget, interval, (P1) privacy status and $G$, or (P2) confirmation iff $U_c\le D_{\max}$; retain the selected budget.
 \end{algorithmic}
 \end{algorithm}
 
@@ -57,7 +57,7 @@ where $[a]_+=\max\{0,a\}$ and $\delta_s\in(0,1)$. Since $F_\alpha$ is increasing
  \end{gathered}
  \label{eq:aoii-confidence}
 \end{equation}
-These bounds cover Monte Carlo error under the assumed model, not map or channel-model mismatch.
+These bounds quantify Monte Carlo error conditional on the prescribed map and channel model. Model mismatch requires a separate assessment.
 
 \subsection{Selection and Independent Confirmation}
 For (P1), form $\mathcal F_\eta=\{\epsilon\in\mathcal E:\epsilon r_0\le\eta_{\max}\}$ and choose
@@ -72,7 +72,7 @@ On the simultaneous-coverage event, $J(\epsilon^\star)-\min_{\epsilon\in\mathcal
 
 For (P2), choose the smallest $\epsilon$ satisfying $U_\epsilon\le D_{\max}$. If none qualifies, $\min_\epsilon L_\epsilon>D_{\max}$ indicates grid infeasibility on the coverage event; otherwise feasibility is unconfirmed. An interval straddling the threshold leaves grid optimality unresolved.
 
-Freeze the budget and use $N_c$ independent samples per scenario, replacing $d_s$ in~\eqref{eq:outage-confidence}--\eqref{eq:aoii-confidence} by $d_c=\sqrt{\log(2N_{\mathrm x}/\delta_c)/(2N_c)}$. For (P2), confirm feasibility only if the new upper endpoint is at most $D_{\max}$; otherwise report unconfirmed without retuning. The union-bound coverage for selection and confirmation is at least $1-\delta_s-\delta_c$. For the geometry-based beam rule and brute-force MAP, selection costs $O(|\mathcal E|N_{\mathrm x}N_s(N_{\mathrm x}+M))$, followed by one-candidate confirmation. Figures~\ref{fig:arrays} and~\ref{fig:selection} examine array sensitivity and selection reliability. 
+Freeze the budget and use $N_c$ independent samples per scenario, replacing $d_s$ in~\eqref{eq:outage-confidence}--\eqref{eq:aoii-confidence} by $d_c=\sqrt{\log(2N_{\mathrm x}/\delta_c)/(2N_c)}$. For (P2), confirm feasibility only if the new upper endpoint is at most $D_{\max}$; otherwise report unconfirmed and retain the selected budget. The union-bound coverage for selection and confirmation is at least $1-\delta_s-\delta_c$. For the geometry-based beam rule and brute-force MAP, selection costs $O(|\mathcal E|N_{\mathrm x}N_s(N_{\mathrm x}+M))$, followed by one-candidate confirmation. Figures~\ref{fig:arrays} and~\ref{fig:selection} examine array sensitivity and selection reliability. 
 
 \begin{figure*}[!t]
 \centering
