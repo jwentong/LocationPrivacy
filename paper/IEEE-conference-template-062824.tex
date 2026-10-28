@@ -47,7 +47,7 @@ Consider a UAV whose location report is used by a multi-antenna base station (BS
 \begin{figure*}[t]
 \centering
 \resizebox{\textwidth}{!}{\input{Figs/system_model.tex}}
-\caption{Location-private UAV uplink. A perturbed report drives inference and receive-beam selection. The shaded main lobe points toward the inferred location (orange target), while the task packet traverses the channel at the true location.}
+\caption{Location-private UAV uplink. A perturbed report drives inference and receive-beam selection. The green ellipse represents a receive beam directed toward the inferred location (orange target), while the task packet traverses the channel at the true location.}
 \label{fig:system}
 \end{figure*}
 We study this connection in a single-UAV uplink with one transmit antenna and multiple BS receive antennas. A three-dimensional Laplace mechanism protects reports; maximum a posteriori (MAP) inference determines a location-aided receive beam, which is evaluated on the true channel. A separate Markovian task source connects link outcomes to AoII. We protect the report interface and assume the controller has no independent precise radio-frequency (RF) localization. The challenge is to quantify the coupled effects of privacy, inference, directional gain, outage, and source evolution. The contributions are:
